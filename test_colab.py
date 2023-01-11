@@ -93,8 +93,6 @@ cv2.imwrite(img_name+"_p.jpg",img)
 print(str(counter), ' images ready!', len(pics))
 
 
-
-
 #__xy = rotate(__xy, angle)
 def test_random():
     #Обираємо довільну картинку на карті
@@ -142,7 +140,6 @@ def test_random():
 
 
 img1 = test_random()
-
 img2 = test_random()
 img3 = test_random()
 img4 = test_random()
