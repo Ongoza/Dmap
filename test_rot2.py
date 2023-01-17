@@ -10,7 +10,8 @@ imgwidth=img1.shape[1]
 
 def rotateImage(image, angle):
     row, col = image.shape[:2]
-    center=tuple(np.array([row,col])/2.0)
+    center=np.array([row,col])/2.0
+    #center=tuple(np.array([row,col])/2.0)
     rot_mat = cv2.getRotationMatrix2D(center,angle+180,1.0)
     new_image = cv2.warpAffine(image, rot_mat, (col,row))
     return new_image
