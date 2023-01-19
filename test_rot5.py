@@ -5,7 +5,7 @@ import math
 
 N = 128 # x
 M = N
-radius = int(N*math.sqrt(2)/2)
+radius = math.floor(N*math.sqrt(2)/2)
 step = 32
 M2 = int(M/2)
 N2 = int(N/2)
@@ -24,17 +24,6 @@ def rotateImage(image, angle):
     rot_mat = cv2.getRotationMatrix2D(center,np.degrees(angle)+90,1.0)    
     new_image = cv2.warpAffine(image, rot_mat, (col,row))
     return new_image
-
-def rotateCircle(loc, angle, rec, limit):        
-    res = np.empty((len(rec), 2), dtype=int)
-    tr = True
-    for i, (resi, reci) in enumerate(zip(res, rec)):
-        resi[0] = loc[0] + reci[0] 
-        resi[1] = loc[1] + reci[1]
-        if resi[0]<0 or resi[1]<0 or resi[0]>limit[0] or resi[0]>limit[1]: 
-            tr = False
-            break
-    return tr, res
 
 def rotate(loc, angle, rec, limit):    
     sinA = np.sin(angle)
@@ -56,30 +45,26 @@ def cam_virt(loc, loc1, arrow=False, draw=True):
     angle = - math.atan2(l[0],l[1])
     steps = math.floor(math.hypot(l[0], l[1])/step) - 1
     #print('angle', math.degrees(angle), steps, type(steps))
-
-    #rec = [[-M2,-N2],[M2,-N2],[M2,N2],[-M2,N2]]
-    recCircle = [[-M2,-N2],[M2,-N2],[M2,N2],[-M2,N2]]
-
-    tr, __xy2 = rotateCircle(loc, angle, recCircle, limit)    
-    # rotate the image to North
+    rec = [[-M2,-N2],[M2,-N2],[M2,N2],[-M2,N2]]
+    tr, __xy2 = rotate(loc, angle, rec, limit)    
+    # rotate the image to East
     if tr:
         x, y, w, h = cv2.boundingRect(__xy2)
-        #print("_x2", __xy2, __xy2[:, 1] )
         if draw: 
-            #cv2.rectangle(img1, [x, y], [x+w, y+h], (255, 0, 255), 2)
             cv2.circle(img1, loc, radius, (255, 0, 255), 2)
             cv2.polylines(img1, [__xy2], True, (255, 255, 255), 2)            
             cv2.putText(img1, f"{i}", loc, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
         if arrow: cv2.circle(img1, __xy2[0], 10, (0,200,200), -1)
-        #img2 = img1_0[y:y+h, x:x+w].copy()
+        #cut rect outside circle
         img2 = img1_0[loc[1]-radius:loc[1]+radius, loc[0]-radius:loc[0]+radius].copy()
-        print('h',h,w)
+        st_sh = img2.shape
         try:
             img2 = rotateImage(img2, angle)
             # cut empty pixels
             center = (np.array(img2.shape[:2])/2).astype(int)
             x_min = max(center[0]-int(M/2), 0)
             y_min = max(center[1]-int(N/2), 0)
+            #cut rect inside circle
             img2 = img2[y_min:y_min+M, x_min:x_min+N]
             img2 = cv2.resize(img2, (N,M))
             # draw arrow for checking orientation
