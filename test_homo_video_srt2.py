@@ -168,7 +168,7 @@ while cnt < len_frames:
                     #cv2.polylines(img_map, [np.array(route_xy)], False, (255,255,0), 3)
                     cv2.circle(img_map, loc_xy, 4, (0,255,0), -1)
                     cv2.circle(img_map, cur_loc.astype(int), 3, (0,0,255), -1)
-                drawKeyPts(img, kp2, 2, (255,0,0))
+                #drawKeyPts(img, kp2, 2, (255,0,0))
                 #img = cv2.drawKeypoints(img, kp2, None, color=(255,0,0), flags=0)
                 #cv2.imshow('video', img)
                 img1 = cv2.resize(img, v_scale_out)

@@ -1,14 +1,16 @@
 import numpy as np
 import cv2
 
-video = "2023_01_14_11_08_19.mp4"
+#video = "2023_01_14_11_08_19.mp4"
+video = "test2.avi"
+
 #video = "DJI_0006_s.MP4"
 v_scale = (1280, 720)
 out = cv2.VideoWriter("out_1.avi", cv2.VideoWriter_fourcc(*'XVID'), 10, v_scale)
 top_feat = 16
 counter_start = 4
-cur_loc = np.array([300, 300])
-
+cur_loc = np.array([2000, 400])
+scale_xy = 35
 def angle_p(p1, p2): 
     res_d = np.array(p2) - np.array(p1)
     #length = np.sqrt(res_d.dot(res_d))
@@ -16,7 +18,7 @@ def angle_p(p1, p2):
     angle = np.arccos(res_d[1]/length)
     if res_d[0]<0: angle *= -1 
     print("length", length, np.degrees(angle), angle, res_d[1]) 
-    cv2.putText(img, f"Angle (deg): {np.degrees(angle):.0f}", (400,100), 6, 1,  (255,255,255), 2)
+    cv2.putText(img, f"Angle (deg): {np.degrees(angle):.0f}", (400,100), 0, 1,  (255,255,255), 2)
     return angle
 
 cap = cv2.VideoCapture(video)
@@ -77,8 +79,8 @@ while True:
                 if drow: 
                     img = cv2.drawKeypoints(img, kp2, None, color=(0,255,0), flags=0)
                     #print(f"route {np.array(route).shape}")
-                    cv2.polylines(img, [np.array(route)//16], False, (255,255,0), 3)
-                    cv2.circle(img, route[-1]//16, 6, (0,0,255), -1)
+                    cv2.polylines(img, [np.array(route)//scale_xy], False, (255,255,0), 3)
+                    cv2.circle(img, route[-1]//scale_xy, 6, (0,0,255), -1)
                 cv2.imshow('video', img)
                 out.write(img)
                 kp1 = tuple(kp2) # tuple

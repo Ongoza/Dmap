@@ -9,7 +9,7 @@ file_kml_src = "testP3.kml"
 file_kml_out = "testP3_out.kml"
 file_video_in = "test3.avi"
 file_video_out = "test3_out.avi"
-scale_img2gps = 0.4
+scale_img2gps = 20
 gps_in = []
 gps_out = []
 len_frames = 0
@@ -197,13 +197,15 @@ while True:
                 cur_az += np.radians(avg_delta[1])
                 cur_az = cur_az + 2*math.pi if cur_az < -math.pi else cur_az # angle
                 cur_az = cur_az - 2*math.pi if cur_az > math.pi else cur_az # angle
-                #print("az",cur_az,avg_delta[1])
-                delta = np.array([avg_delta[0]*xy_delta*np.cos(cur_az),avg_delta[0]*xy_delta*np.sin(cur_az)])# if xy_delta > 0.02 else 0
-                cur_loc = np.add(cur_loc, delta)#.astype(int)
+                delta = avg_delta[0]*xy_delta
+                #print("az",delta, avg_delta[0],xy_delta)
+                delta_loc = np.array([delta*np.cos(cur_az),delta*np.sin(cur_az)])# if xy_delta > 0.02 else 0
+                cur_loc = np.add(cur_loc, delta_loc)#.astype(int)
                 route.append(cur_loc.copy().astype(int))
                 #cur_loc_new = fwd_loc(cur_loc, cur_az, avg_delta[0])
-                #gps_new = wgs84_geod.fwd(gps_out[-1][0], gps_out[-1][1], cur_az, avg_delta[0]*scale_img2gps)                
-                #gps_out.append(gps_new[:2])
+                print(gps_out[-1][0], gps_out[-1][1], cur_az, delta*scale_img2gps, delta)
+                gps_new = wgs84_geod.fwd(gps_out[-1][0], gps_out[-1][1], np.degrees(cur_az), delta*scale_img2gps, radians=False)                
+                gps_out.append(gps_new[:2])
                 cv2.polylines(img, [np.array(route)//gps2img], False, (255,255,0), 3)
                 cv2.circle(img, route[-1]//gps2img, 10, (255,0,255), -1)                
                 #print(f"Video: a:{np.degrees(cur_az):.0f} l:{avg_delta[0]:.0f} ", end='\r')                
@@ -215,17 +217,16 @@ while True:
                 kp1 = tuple(kp2) # tuple
                 des1 = des2.copy() #np array
         cnt += 1
-        key = cv2.waitKey(100)
+        key = cv2.waitKey(1)
         if key & 0xFF == ord('q'): break
     else:
       err_cnt -= 1
       #print("err", err_cnt)
       if not err_cnt: break
-cv2.imwrite("i1.jpg",img)
+#cv2.imwrite("i1.jpg",img)
 print("Kml is ready", len(gps_out))
-createKML("PathVideo22.kml", gps_out)
+createKML(file_kml_out, gps_out)
 
 cap.release()    
 if out: out.release()
 cv2.destroyAllWindows()
-
